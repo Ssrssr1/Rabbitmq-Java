@@ -21,7 +21,7 @@ public class send {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             String message = "Hello World!";
             channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
-            System.out.println(" [x] Sent '" + message + "'");
+            System.out.println("Sent '" + message + "'");
         }
     }
 }
