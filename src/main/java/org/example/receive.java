@@ -5,28 +5,37 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 public class receive {
 
-    private final static String QUEUE_NAME = "hello";
-
     public static void main(String[] argv) throws Exception {
+        Properties consumerProps = new Properties();
+        FileInputStream fis = new FileInputStream("/home/ljh/workspace/github/Rabbitmq-Java/src/main/java/rabbitmq.properties");
+        consumerProps.load(fis);
+        String host = consumerProps.getProperty("spring.rabbitmq.host");
+        String user = consumerProps.getProperty("spring.rabbitmq.username");
+        String pass = consumerProps.getProperty("spring.rabbitmq.password");
+        int port = Integer.parseInt(consumerProps.getProperty("spring.rabbitmq.port"));
+        String quene = consumerProps.getProperty("spring.rabbitmq.quene");
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("192.168.122.144");
-        factory.setUsername("rollen");
-        factory.setPassword("root");
-        factory.setPort(5672);
+
+        factory.setHost(host);
+        factory.setUsername(user);
+        factory.setPassword(pass);
+        factory.setPort(port);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.queueDeclare(quene, false, false, false, null);
         System.out.println("Waiting for messages. To exit press CTRL+C");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             System.out.println("Received '" + message + "'");
         };
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(quene, true, deliverCallback, consumerTag -> { });
     }
 }
